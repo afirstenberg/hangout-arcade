@@ -1,0 +1,158 @@
+<script src="//cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
+
+<dom-module id="x-ship">
+
+  <template>
+    <style type="text/css">
+      canvas { border: 1px solid black; }
+    </style>
+
+    <div id="containter">
+      <canvas id="maincanvas" width="400" height="400"></canvas>
+    </div>
+    <canvas id="offscreen" style="display:none"></canvas>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'x-ship',
+
+      properties:{
+
+      },
+
+      init_ship: function( hangoutId, userId ){
+        var firebaseref=new Firebase("https://boiling-inferno-5911.firebaseio.com/spacegame/"+hangoutId)
+        console.log("workin"+firebaseref);
+
+        var _this = this;
+        firebaseref.on("value", function(snapshot) {
+
+          var x=0; var y=0;
+          //var offscreenCanvas = document.getElementById('offscreen');
+          var offscreenCanvas = _this.$.offscreen;
+          var ofx = offscreenCanvas.getContext('2d');
+          ofx.fillStyle = "#00CCFF"
+          ofx.fillRect(0,0,$(window).width(),$(window).height());
+
+          snapshot.forEach(function(newPost) {
+
+            if(newPost.key()!='target'){
+              var childdata=newPost.val();
+              ofx.save();
+              ofx.translate(childdata.xpos,childdata.ypos);
+              ofx.rotate(childdata.rotate*Math.PI/180);
+              console.log(childdata);
+              ofx.beginPath();
+              ofx.moveTo(0,0);
+              ofx.lineTo(-5,5);
+
+              ofx.lineTo(0,-10);
+
+              ofx.lineTo(5,5);
+              ofx.lineTo(0,0);
+              ofx.stroke();
+              if(childdata.thrust==true)
+              {
+                ofx.moveTo(0,0);
+                ofx.lineTo(0,10);
+                ofx.moveTo(0,0);
+                ofx.lineTo(0,-5);
+                ofx.moveTo(0,0);
+                ofx.lineTo(0,5);
+                ofx.stroke();
+              }
+              ofx.restore();
+              if(newPost.key()==userId){
+                x=childdata.xpos-50;y=childdata.ypos-50;
+              }
+
+
+            }
+          });
+
+          var imgData = ofx.getImageData(x, y, 400, 400);
+          var mainCanvas = document.getElementById('maincanvas');
+          var onx = mainCanvas.getContext('2d');
+          onx.putImageData(imgData, 100, 70);
+        });
+        console.log('addEventListener');
+        if( !this.keydownRegistered ){
+        this.keydownRegistered = true;
+        window.addEventListener('keydown',function(event){
+          console.log(event.keyCode);
+          if(event.keyCode=='65')
+          {
+            firebaseref.once("value",function(snapshot){
+              var playerref=snapshot.child(userId+"/rotate");
+              var val=playerref.val();
+              var usersRef = firebaseref.child(userId);
+              usersRef.update({
+                "rotate":val-45
+              });
+            });
+
+          }
+          if(event.keyCode=='68')
+          {
+            firebaseref.once("value",function(snapshot){
+              var playerref2=snapshot.child(userId+"/rotate");
+              var val=playerref2.val();
+              var usersRef2 = firebaseref.child(userId);
+              usersRef2.update({
+                "rotate":val+45
+              });
+            });
+          }
+          if(event.keyCode=='87')
+          {
+            firebaseref.once("value",function(snapshot){
+              var usersRef2 = firebaseref.child(userId);
+              usersRef2.update({
+                "thrust":true
+              });
+            });
+          }
+          if(event.keyCode=='83')
+          {
+            firebaseref.once("value",function(snapshot){
+              var usersRef2 = firebaseref.child(userId);
+              usersRef2.update({
+                "thrust":false
+              });
+            });
+          }
+        });
+        }
+      },
+
+      draw: function(){
+        //var mainCanvas = document.getElementById('maincanvas');
+        //var offscreenCanvas = document.getElementById('offscreen');
+        console.log('this.$',this.$);
+        var mainCanvas = this.$.maincanvas;
+        var offscreenCanvas = this.$.offscreen;
+
+        offscreenCanvas.width = 400;
+        offscreenCanvas.height = 400;
+
+        var onx = mainCanvas.getContext('2d');
+        var ofx = offscreenCanvas.getContext('2d');
+        ofx.fillStyle = "#00CCFF";
+
+        ofx.fillRect(0,0,400,400);
+
+        onx.fillStyle = "#00CCFF";
+
+        onx.fillRect(0,0,500,500);
+
+      },
+
+      ready: function(){
+        this.draw();
+      }
+
+    });
+  </script>
+</dom-module>

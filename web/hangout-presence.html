@@ -1,0 +1,163 @@
+<link rel="import" href="bower_components/firebase-element/firebase-document.html">
+<link rel="import" href="bower_components/google-signin/google-signin-aware.html">
+<link rel="import" href="x-ship.html">
+
+
+<dom-module id="hangout-presence">
+
+  <template>
+    <google-signin-aware id="aware"></google-signin-aware>
+    <firebase-document
+        id="people"
+        location="https://boiling-inferno-5911.firebaseio.com/people"
+        data="{{people}}"
+        log
+        ></firebase-document>
+    <firebase-document
+        id="hangout"
+        location="https://boiling-inferno-5911.firebaseio.com/hangout"
+        data="{{hangout}}"
+        log
+        ></firebase-document>
+    <firebase-document
+        id="game"
+        location="https://boiling-inferno-5911.firebaseio.com/spacegame"
+        data="{{game}}"
+        log
+        ></firebase-document>
+    <x-ship id="canvas"></x-ship>
+  </template>
+  <script>
+    Polymer({
+      is: "hangout-presence",
+
+      properties: {
+        people: {
+          type: Array,
+          observer: '_memberChanged'
+        },
+        hangout: {
+          type: Array,
+          observer: '_memberChanged'
+        },
+        game: {
+          type: Array,
+          observer: '_gameUpdated'
+        },
+        uid: {
+          type: String
+        },
+        hid: {
+          type: String
+        },
+        initialized: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      _memberChanged: function(){
+        //console.log(this.people);
+        //console.log(this.hangout);
+
+        // Make sure our data is there
+        //console.log('initialized',this.initialized);
+        if( this.initialized && this.people && this.hangout && this.game ){
+
+          var peopleDb = new Firebase(this.$.people.location+'/'+this.uid);
+          peopleDb.onDisconnect().remove();
+          var person = {
+            "app": "spacegame",
+            "hangout": this.hid,
+            "name": this.uname,
+            "img": this.uimg
+          };
+          this.people[this.uid] = person;
+
+          if( !this.hangout[this.hid]){
+            this.hangout[this.hid] = {
+              "app": "spacegame",
+              "hid": this.hid,
+              "member": {
+              }
+            }
+          }
+          var hangoutDb = new Firebase(this.$.hangout.location+'/'+this.hid);
+          hangoutDb.onDisconnect().remove();
+          this.hangout[this.hid].member[this.uid] = person;
+          this.notifyPath('hangout.'+this.hid, this.hangout[this.hid]);
+          this.notifyPath('people.'+this.uid, this.people[this.uid]);
+
+          this.$.canvas.init_ship( this.hid, this.uid );
+          this._gameUpdated();
+        }
+      },
+
+      _gameUpdated: function(){
+        console.log('game updated',this.game);
+        var newShip = {
+          rotate: 0,
+          score: 0,
+          thrust: false,
+          xpos: 100,
+          ypos: 100,
+          xspeed: 0,
+          yspeed: 0
+        };
+        if( !this.game[this.hid] ){
+          console.log('creating game and user',this.uid);
+          var newGame = {};
+          newGame[this.uid] = newShip;
+          this.game[this.hid] = newGame;
+          this.notifyPath( 'game', this.game );
+          this.notifyPath( 'game.'+this.hid, this.game[this.hid] );
+        } else if( !this.game[this.hid][this.uid] ){
+          console.log('creating game user',this.uid);
+          this.game[this.hid][this.uid] = newShip;
+          this.notifyPath( 'game.'+this.hid+'.'+this.uid, this.game[this.hid][this.uid] );
+        }
+        console.log('done game updated');
+      },
+
+      created: function(){
+        console.log('polymer created');
+        var _this = this;
+        if( gapi.hangout.isApiReady ){
+          console.log('hangout API already ready');
+          _this._hangoutReady( _this );
+        } else {
+          console.log('registering hangout onApiReady');
+          gapi.hangout.onApiReady.add(function(e){
+            console.log('hangout API now ready');
+            _this._hangoutReady( _this );
+          });
+        }
+      },
+
+      _hangoutReady: function( _this ){
+        console.log('hangout API ready');
+        var interval = setInterval(function(){
+          var person = gapi.hangout.getLocalParticipant().person;
+          console.log(person);
+          var uid = person.id;
+          var name = person.displayName;
+          var img  = person.image.url;
+          var url = gapi.hangout.getHangoutUrl();
+          var i = url.lastIndexOf('/');
+          var hid = url.substring(i+1);
+          _this.uid=uid;
+          _this.uname=name;
+          _this.uimg=img;
+          _this.hid=hid;
+          _this.hurl=url;
+          _this.initialized = true;
+          console.log('hid/uid',hid,uid);
+          _this._memberChanged();
+          clearInterval( interval );
+        },1000);
+      }
+
+    });
+  </script>
+
+</dom-module>
