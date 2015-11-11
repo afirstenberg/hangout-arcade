@@ -1,0 +1,22 @@
+{
+  "name": "hangout-arcade",
+  "version": "0.0.0",
+  "description": "Server for Hangout Arcade",
+  "main": "spacegame.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/afirstenberg/hangout-arcade"
+  },
+  "author": "Allen Firstenberg",
+  "license": "Copyright",
+  "bugs": {
+    "url": "https://github.com/afirstenberg/hangout-arcade/issues"
+  },
+  "homepage": "https://github.com/afirstenberg/hangout-arcade",
+  "dependencies": {
+    "firebase": "^2.3.1"
+  }
+}
