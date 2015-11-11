@@ -65,4 +65,58 @@ var process = function(){
   db.once( 'value', processAll );
 };
 
+var changedThrust = function( thrust ){
+  var thrustVal = thrust.val();
+  if( thrustVal === true ){
+    var thrustDb = thrust.ref();
+    thrustDb.set( false );
+
+    var userDb = thrustDb.parent();
+    userDb.once('value',function(user){
+      var userVal = user.val();
+      var rotate = userVal.rotate;
+      var radians = rotate * Math.PI / 180;
+      var changes = {
+        xspeed: userVal.xspeed + Math.sin( radians ),
+        yspeed: userVal.yspeed - Math.cos( radians )
+      };
+      if( changes.xspeed < -5 ){
+        changes.xspeed = -5;
+      } else if( changes.xspeed > 5 ){
+        changes.xspeed = 5;
+      }
+      if( changes.yspeed < -5 ){
+        changes.yspeed = -5;
+      } else if( changes.yspeed > 5 ){
+        changes.yspeed = 5;
+      }
+
+      userDb.update( changes );
+    });
+  }
+};
+
+var addedUser = function( user ){
+  console.log( 'Added User', user.key() );
+  user.ref().orderByKey().startAt('target').endAt('thrust').on('child_changed',changedThrust);
+};
+
+var addedObject = function( obj ){
+  var key = obj.key();
+  if( key === 'target' ){
+    // Probably do nothing
+  } else {
+    addedUser( obj );
+  }
+};
+
+var addedGame = function( game ){
+  console.log( 'Added game', game.key() );
+  game.ref().on( 'child_added', addedObject );
+};
+
+// Setup callbacks
+db.on( 'child_added', addedGame );
+
+// Update ships periodically
 var processInterval = setInterval( process, 1000 / 30 );
