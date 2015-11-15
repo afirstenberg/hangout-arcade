@@ -33,8 +33,8 @@
           //var offscreenCanvas = document.getElementById('offscreen');
           var offscreenCanvas = _this.$.offscreen;
           var ofx = offscreenCanvas.getContext('2d');
-          ofx.fillStyle = "#00CCFF"
-          ofx.fillRect(0,0,$(window).width(),$(window).height());
+          ofx.fillStyle = _this.gradient;
+          ofx.fillRect(0,0,offscreenCanvas.width,offscreenCanvas.height);
 
           snapshot.forEach(function(newPost) {
 
@@ -75,7 +75,9 @@
           var imgData = ofx.getImageData(x, y, 400, 400);
           var mainCanvas = document.getElementById('maincanvas');
           var onx = mainCanvas.getContext('2d');
-          onx.putImageData(imgData, 100, 70);
+          var targetx = 0;
+          var targety = 0;
+          onx.putImageData(imgData, targetx, targety);
         });
         console.log('addEventListener');
         if( !this.keydownRegistered ){
@@ -149,6 +151,7 @@
         gradient.addColorStop( 0, 'cyan' );
         gradient.addColorStop( 1, 'blue' );
         ofx.fillStyle = gradient;
+        this.gradient = gradient;
 
         ofx.fillRect(0,0,offscreenCanvas.width,offscreenCanvas.height);
 
