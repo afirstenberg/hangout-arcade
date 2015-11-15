@@ -1,0 +1,45 @@
+<link rel="import" href="bower_components/paper-card/paper-card.html">
+<link rel="import" href="bower_components/iron-image/iron-image.html">
+
+<dom-module id="index-room">
+  <template>
+    <style>
+      .card {
+        width: 25%;
+        text-align: center;
+        display: inline-block;
+      }
+      paper-card {
+        width: 90%;
+        height: 10em;
+      }
+    </style>
+    <div class="card">
+      <paper-card
+          elevation="3"
+          >
+        <div>{{room.app}}</div>
+        <div>{{room.hid}}</div>
+      </paper-card>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: "index-room",
+
+      properties: {
+        room: {
+          type: Object
+        }
+      },
+
+      listeners: {
+        "tap": "_click"
+      },
+
+      _click: function(e){
+        window.open("https://talkgadget.google.com/hangouts/_/"+this.room.hid+"?gid=692596667790");
+      }
+    });
+  </script>
+</dom-module>

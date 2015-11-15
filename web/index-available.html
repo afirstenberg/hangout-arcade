@@ -1,0 +1,48 @@
+<link rel="import" href="bower_components/firebase-element/firebase-document.html">
+<link rel="import" href="index-room.html">
+<dom-module id="index-available">
+  <template>
+    <firebase-document
+        id="people"
+        location="https://boiling-inferno-5911.firebaseio.com/people"
+        data="{{people}}"
+        ></firebase-document>
+    <firebase-document
+        id="hangout"
+        location="https://boiling-inferno-5911.firebaseio.com/hangout"
+        data="{{hangout}}"
+        ></firebase-document>
+    <template is="dom-repeat" items="[[hangoutList]]" as="game">
+      <index-room room="[[game]]"></index-room>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'index-available',
+
+      properties: {
+        people: {
+          type: Object
+        },
+        hangout: {
+          type: Object,
+          observer: '_hangoutsChanged'
+        },
+        hangoutList: {
+          type: Array,
+          notify: true
+        }
+      },
+
+      _hangoutsChanged: function(){
+        var hangout = this.hangout;
+        var keys = Object.keys(hangout);
+        var newHangoutList = [];
+        for( var i=0; i<keys.length; i++){
+          newHangoutList.push(hangout[keys[i]]);
+        }
+        this.hangoutList = newHangoutList;
+      }
+    });
+  </script>
+</dom-module>
