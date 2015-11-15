@@ -134,18 +134,23 @@
         var mainCanvas = this.$.maincanvas;
         var offscreenCanvas = this.$.offscreen;
 
-        offscreenCanvas.width = 400;
-        offscreenCanvas.height = 400;
+        var width = 1000;
+        var height = 1000;
+        var halfwidth = width / 2;
+        var halfheight = height / 2;
+        var radius = Math.sqrt( (halfwidth*halfwidth) + (halfheight*halfheight));
 
-        var onx = mainCanvas.getContext('2d');
+        offscreenCanvas.width = width;
+        offscreenCanvas.height = height;
+
         var ofx = offscreenCanvas.getContext('2d');
-        ofx.fillStyle = "#00CCFF";
 
-        ofx.fillRect(0,0,400,400);
+        var gradient = ofx.createRadialGradient( halfwidth, halfheight, radius, halfwidth, halfheight, 0 );
+        gradient.addColorStop( 0, 'cyan' );
+        gradient.addColorStop( 1, 'blue' );
+        ofx.fillStyle = gradient;
 
-        onx.fillStyle = "#00CCFF";
-
-        onx.fillRect(0,0,500,500);
+        ofx.fillRect(0,0,offscreenCanvas.width,offscreenCanvas.height);
 
       },
 
