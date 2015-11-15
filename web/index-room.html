@@ -4,19 +4,22 @@
 <dom-module id="index-room">
   <template>
     <style>
-      .card {
+      .card-div {
         width: 25%;
         text-align: center;
         display: inline-block;
       }
-      paper-card {
+      .card {
         width: 90%;
         height: 10em;
       }
     </style>
-    <div class="card">
+    <div class="card-div">
       <paper-card
-          elevation="3"
+          class="card"
+          elevation="2"
+          on-mouseenter="_handleMouseenter"
+          on-mouseleave="_handleMouseleave"
           >
         <div>{{room.app}}</div>
         <div>{{room.hid}}</div>
@@ -35,6 +38,16 @@
 
       listeners: {
         "tap": "_click"
+      },
+
+      _handleMouseenter: function(e){
+        e.target.elevation = 4;
+        e.target.classList.add( 'hover' );
+      },
+
+      _handleMouseleave: function(e){
+        e.target.elevation = 2;
+        e.target.classList.remove( 'hover' );
       },
 
       _click: function(e){
