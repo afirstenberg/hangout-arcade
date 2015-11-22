@@ -9,16 +9,18 @@
       }
       div#panel {
         display: inline-block;
+        vertical-align: top;
+        font-size: 24px;
       }
       div.readout {
         display: block;
-        font-size: 14px;
       }
       span.label {
         width: 6em;
       }
       span.val {
         color: red;
+        width: 20em;
       }
     </style>
 
@@ -26,8 +28,18 @@
       <canvas id="maincanvas" width="400" height="400"></canvas>
     </div>
     <div id="panel">
-      <div id="xpos" class="readout"><span class="label">X:</span><span class="val">[[xpos]]</span></div>
-      <div id="ypos" class="readout"><span class="label">Y:</span><span class="val">[[ypos]]</span></div>
+      <div id="x" class="readout">
+        <span class="label">X:</span>
+        <span class="val">[[xpos]]</span>
+        <span class="label">delta:</span>
+        <span class="val">[[xspeed]]</span>
+      </div>
+      <div id="y" class="readout">
+        <span class="label">Y:</span>
+        <span class="val">[[ypos]]</span>
+        <span class="label">delta:</span>
+        <span class="val">[[yspeed]]</span>
+      </div>
     </div>
     <canvas id="offscreen" style="display:none"></canvas>
 
@@ -86,8 +98,10 @@
               }
               ofx.restore();
               if(newPost.key()==userId){
-                _this.xpos = childdata.xpos;
-                _this.ypos = childdata.ypos;
+                _this.xpos = childdata.xpos.toFixed(0);
+                _this.ypos = childdata.ypos.toFixed(0);
+                _this.xspeed = childdata.xspeed.toFixed(1);
+                _this.yspeed = childdata.yspeed.toFixed(1);
 
                 x=childdata.xpos-200;
                 if( x < 0 ){
