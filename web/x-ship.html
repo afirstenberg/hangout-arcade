@@ -4,7 +4,6 @@
 
   <template>
     <style type="text/css">
-      canvas { border: 1px solid black; }
       div#viewport {
         display: inline-block;
       }
@@ -87,20 +86,20 @@
               }
               ofx.restore();
               if(newPost.key()==userId){
-                this.xpos = childdata.xpos;
-                this.ypos = childdata.ypos;
+                _this.xpos = childdata.xpos;
+                _this.ypos = childdata.ypos;
 
                 x=childdata.xpos-200;
                 if( x < 0 ){
                   x = 0;
-                } else if( x > offscreenCanvas.width - 200 ){
-                  x = offscreenCanvas.width - 200
+                } else if( x > offscreenCanvas.width - 400 ){
+                  x = offscreenCanvas.width - 400
                 }
                 y=childdata.ypos-200;
                 if( y < 0 ){
                   y = 0;
-                } else if( y > offscreenCanvas.height - 200 ){
-                  y = offscreenCanvas.height - 200;
+                } else if( y > offscreenCanvas.height - 400 ){
+                  y = offscreenCanvas.height - 400;
                 }
               }
 
@@ -110,7 +109,7 @@
 
           var imgData = ofx.getImageData(x, y, 400, 400);
           //var mainCanvas = document.getElementById('maincanvas');
-          var mainCanvas = this.$.maincanvas;
+          var mainCanvas = _this.$.maincanvas;
           var onx = mainCanvas.getContext('2d');
           var targetx = 0;
           var targety = 0;
