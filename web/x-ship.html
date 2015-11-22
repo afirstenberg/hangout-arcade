@@ -5,10 +5,30 @@
   <template>
     <style type="text/css">
       canvas { border: 1px solid black; }
+      div#viewport {
+        display: inline-block;
+      }
+      div#panel {
+        display: inline-block;
+      }
+      div.readout {
+        display: block;
+        font-size: 14px;
+      }
+      span.label {
+        width: 6em;
+      }
+      span.val {
+        color: red;
+      }
     </style>
 
-    <div id="containter">
+    <div id="viewport">
       <canvas id="maincanvas" width="400" height="400"></canvas>
+    </div>
+    <div id="panel">
+      <div id="xpos" class="readout"><span class="label">X:</span><span class="val">[[xpos]]</span></div>
+      <div id="ypos" class="readout"><span class="label">Y:</span><span class="val">[[ypos]]</span></div>
     </div>
     <canvas id="offscreen" style="display:none"></canvas>
 
@@ -19,7 +39,8 @@
       is: 'x-ship',
 
       properties:{
-
+        xpos: Number,
+        ypos: Number
       },
 
       init_ship: function( hangoutId, userId ){
@@ -29,7 +50,8 @@
         var _this = this;
         firebaseref.on("value", function(snapshot) {
 
-          var x=0; var y=0;
+          var x=0;
+          var y=0;
           //var offscreenCanvas = document.getElementById('offscreen');
           var offscreenCanvas = _this.$.offscreen;
           var ofx = offscreenCanvas.getContext('2d');
@@ -65,7 +87,21 @@
               }
               ofx.restore();
               if(newPost.key()==userId){
-                x=childdata.xpos-50;y=childdata.ypos-50;
+                this.xpos = childdata.xpos;
+                this.ypos = childdata.ypos;
+
+                x=childdata.xpos-200;
+                if( x < 0 ){
+                  x = 0;
+                } else if( x > offscreenCanvas.width - 200 ){
+                  x = offscreenCanvas.width - 200
+                }
+                y=childdata.ypos-200;
+                if( y < 0 ){
+                  y = 0;
+                } else if( y > offscreenCanvas.height - 200 ){
+                  y = offscreenCanvas.height - 200;
+                }
               }
 
 
@@ -73,7 +109,8 @@
           });
 
           var imgData = ofx.getImageData(x, y, 400, 400);
-          var mainCanvas = document.getElementById('maincanvas');
+          //var mainCanvas = document.getElementById('maincanvas');
+          var mainCanvas = this.$.maincanvas;
           var onx = mainCanvas.getContext('2d');
           var targetx = 0;
           var targety = 0;
